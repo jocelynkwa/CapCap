@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h2>Welcome to Your Dashboard</h2>
+    <p><a href="{{ url_for('start_session') }}">Start a new session</a> | <a href="{{ url_for('end_session') }}">End current session</a></p>
+    
+    <h3>Your Session Progress</h3>
+    {% if progress %}
+        <ul>
+            {% for session in progress %}
+                <li>Session Time: {{ session.session_time }} seconds, Look-Away Count: {{ session.look_away_count }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No session data found.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+</body>
+</html>
