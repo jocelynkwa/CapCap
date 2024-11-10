@@ -3,10 +3,14 @@ import dlib
 import numpy as np
 import time
 import requests
+import simpleaudio as sa
 
 # Initialize dlib's face detector and facial landmark predictor
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
+alternate_img = cv2.imread('angryCapy.png')
+audio_wave_obj = sa.WaveObject.from_wave_file("capcap.wav")
 
 # Initialize counters and tracking variables
 left_away_count = 0
@@ -15,18 +19,16 @@ look_away_total = 0
 last_direction = "forward"  # Start with "forward" as the initial direction
 last_look_away_time = time.time()  # Track the time of the last increment
 cooldown_period = 1  # Cooldown period in seconds to prevent duplicate counts
+audio_played = False  # Track if audio has been played for the current look_away_total
 
-capybara_img = cv2.imread('capybara.jpg', cv2.IMREAD_UNCHANGED)
-capybara_width = 100
-capybara_height = 80
-capybara_img = cv2.resize(capybara_img, (capybara_width, capybara_height))
-
-capybara_x = 320  # mid of screen
-capybara_y = 400  # bot of screen
-capybara_width = 100
-capybara_height = 80
+capybara_x = 2
+capybara_y = 2 
+capybara_width = 500
+capybara_height = 500
 capybara_speed = 10
 
+capybara_img = cv2.imread('happyCapy.PNG', cv2.IMREAD_UNCHANGED)
+capybara_img = cv2.resize(capybara_img, (capybara_width, capybara_height))
 
 def overlay_image_alpha(background, overlay, x, y):
     """Overlay PNG with alpha channel onto the background."""
@@ -123,17 +125,21 @@ while True:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = detector(gray)
 
-    # Only move capybara every 4 look-aways
-    should_move = look_away_total % 4 == 0
-      
-    if should_move:
-        if last_direction == "left":
-            capybara_x = max(0, capybara_x - capybara_speed)
-        elif last_direction == "right":
-            capybara_x = min(frame.shape[1] - capybara_width, capybara_x + capybara_speed)
+    # Switch image and play audio every 4 lookaways
+    if (look_away_total % 8) < 4:
+        image_to_display = capybara_img
+    else:
+        image_to_display = alternate_img
+
+    # Play audio if look_away_total is a multiple of 4 and audio hasn't been played
+    if look_away_total % 4 == 0 and look_away_total > 0 and not audio_played:
+        audio_wave_obj.play()  # Play audio alert
+        audio_played = True  # Mark audio as played for this look_away_total
+    elif look_away_total % 4 != 0:
+        audio_played = False  # Reset the flag when look_away_total changes
 
     # Overlay the capybara image
-    frame = overlay_image_alpha(frame, capybara_img, capybara_x, capybara_y)
+    frame = overlay_image_alpha(frame, image_to_display, capybara_x, capybara_y)
 
     for face in faces:
         shape = predictor(gray, face)
@@ -151,16 +157,16 @@ while True:
             right_away_count += 1
             increment_lookaway()  # Send update to Flask app
             look_away_total += 1 
-            last_direction = "right"  # Update last direction
-            last_look_away_time = current_time  # Update last look away time
+            last_direction = "right"  
+            last_look_away_time = current_time  
         elif rotation_vector[1] < -0.2 and last_direction != "left" and (current_time - last_look_away_time) > cooldown_period:
             left_away_count += 1
             look_away_total += 1
-            increment_lookaway()  # Send update to Flask app
-            last_direction = "left"  # Update last direction
-            last_look_away_time = current_time  # Update last look away time
+            increment_lookaway()  
+            last_direction = "left"  
+            last_look_away_time = current_time  
         elif -0.2 <= rotation_vector[1] <= 0.2:
-            last_direction = "forward"  # Reset to "forward" when looking forward
+            last_direction = "forward"  
 
         # Display the current direction
         if last_direction == "right":
