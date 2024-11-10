@@ -2,6 +2,7 @@ import cv2
 import dlib
 import numpy as np
 import time
+import requests
 
 # Initialize dlib's face detector and facial landmark predictor
 detector = dlib.get_frontal_face_detector()
@@ -10,9 +11,55 @@ predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 # Initialize counters and tracking variables
 left_away_count = 0
 right_away_count = 0
+look_away_total = 0 
 last_direction = "forward"  # Start with "forward" as the initial direction
 last_look_away_time = time.time()  # Track the time of the last increment
 cooldown_period = 1  # Cooldown period in seconds to prevent duplicate counts
+
+capybara_img = cv2.imread('capybara.jpg', cv2.IMREAD_UNCHANGED)
+capybara_width = 100
+capybara_height = 80
+capybara_img = cv2.resize(capybara_img, (capybara_width, capybara_height))
+
+capybara_x = 320  # mid of screen
+capybara_y = 400  # bot of screen
+capybara_width = 100
+capybara_height = 80
+capybara_speed = 10
+
+
+def overlay_image_alpha(background, overlay, x, y):
+    """Overlay PNG with alpha channel onto the background."""
+    background_width = background.shape[1]
+    background_height = background.shape[0]
+    
+    if overlay.shape[2] == 3:
+        overlay = cv2.cvtColor(overlay, cv2.COLOR_BGR2BGRA)
+    
+    h, w = overlay.shape[0], overlay.shape[1]
+    
+    # Ensure coordinates are within frame
+    if x >= background_width or y >= background_height:
+        return background
+    
+    # Crop if necessary
+    if x + w > background_width:
+        w = background_width - x
+    if y + h > background_height:
+        h = background_height - y
+    
+    # Get ROI
+    overlay_roi = overlay[0:h, 0:w]
+    background_roi = background[y:y+h, x:x+w]
+    
+    # Extract alpha channel and create masks
+    if overlay_roi.shape[2] == 4:
+        alpha = overlay_roi[:, :, 3] / 255.0
+        alpha = np.expand_dims(alpha, axis=-1)
+        background_roi = background_roi * (1 - alpha) + overlay_roi[:, :, :3] * alpha
+        
+    background[y:y+h, x:x+w] = background_roi
+    return background
 
 def get_head_pose(shape):
     # Define 2D facial landmarks
@@ -51,6 +98,17 @@ def get_head_pose(shape):
 
     return rotation_vector, translation_vector
 
+def increment_lookaway():
+    try:
+        # Send a POST request to the Flask app to update lookaway count
+        response = requests.post("http://127.0.0.1:5000/update_lookaway")
+        if response.status_code == 200:
+            print("Look-away count updated.")
+        else:
+            print("Failed to update look-away count.")
+    except Exception as e:
+        print("Error:", e)
+
 # Initialize the video capture
 cap = cv2.VideoCapture(1)
 
@@ -64,6 +122,18 @@ while True:
     
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = detector(gray)
+
+    # Only move capybara every 4 look-aways
+    should_move = look_away_total % 4 == 0
+      
+    if should_move:
+        if last_direction == "left":
+            capybara_x = max(0, capybara_x - capybara_speed)
+        elif last_direction == "right":
+            capybara_x = min(frame.shape[1] - capybara_width, capybara_x + capybara_speed)
+
+    # Overlay the capybara image
+    frame = overlay_image_alpha(frame, capybara_img, capybara_x, capybara_y)
 
     for face in faces:
         shape = predictor(gray, face)
@@ -79,10 +149,14 @@ while True:
         # Check head position and update counters based on the direction change with cooldown
         if rotation_vector[1] > 0.2 and last_direction != "right" and (current_time - last_look_away_time) > cooldown_period:
             right_away_count += 1
+            increment_lookaway()  # Send update to Flask app
+            look_away_total += 1 
             last_direction = "right"  # Update last direction
             last_look_away_time = current_time  # Update last look away time
         elif rotation_vector[1] < -0.2 and last_direction != "left" and (current_time - last_look_away_time) > cooldown_period:
             left_away_count += 1
+            look_away_total += 1
+            increment_lookaway()  # Send update to Flask app
             last_direction = "left"  # Update last direction
             last_look_away_time = current_time  # Update last look away time
         elif -0.2 <= rotation_vector[1] <= 0.2:
