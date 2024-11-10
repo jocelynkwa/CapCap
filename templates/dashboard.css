@@ -1,0 +1,78 @@
+h2 {
+    font-family: "Cherry Bomb One", system-ui;
+    font-size: 40px;
+    color: #FFFFFF;
+    text-align: center;
+    vertical-align: middle;
+    letter-spacing: 8px;
+}
+
+.title-box {
+    background-color: #FF8F3D;
+    border-bottom: 5px solid;
+    border-color: #D98041;
+    border-radius: 25px;
+    height: 70px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.start-session {
+    color: #95CD5C;
+    background-color: #DBF2C3;
+    border-bottom: 5px solid;
+    border-color: #95CD5C;
+    border-radius: 25px;
+    height: 50px;
+    width: 260px;
+    display: inline-block;
+    margin-right: 60px;
+}
+
+.end-session {
+    background-color: #FDD5CB;
+    border-bottom: 5px solid;
+    border-color: #D55C3E;
+    border-radius: 25px;
+    height: 50px;
+    width: 260px;
+    display: inline-block;
+}
+
+.start-session h3 {
+    color: #95CD5C;
+    font-family: "Cherry Bomb One", system-ui;
+    font-size: 30px;
+    text-align: center;
+    vertical-align: middle;
+    letter-spacing: 5px;
+    margin: 0px;
+}
+
+.end-session h3 {
+    color: #D55C3E;
+    font-family: "Cherry Bomb One", system-ui;
+    font-size: 30px;
+    text-align: center;
+    vertical-align: middle;
+    letter-spacing: 5px;
+    margin: 0px;
+}
+
+.session-controls {
+    display: flex;
+    text-align: center;
+    margin-top: 40px;
+    justify-content: center;
+
+}
+
+.start-session a:hover {
+    background-color: red;
+}
+
+body {
+    background-color: #FFF2E4;
+}

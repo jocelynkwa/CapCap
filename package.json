@@ -1,0 +1,19 @@
+{
+  "name": "lookaway",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jocelynkwa/lookaway.git"
+  },
+  "author": "Jocelyn Kwa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jocelynkwa/lookaway/issues"
+  },
+  "homepage": "https://github.com/jocelynkwa/lookaway#readme",
+  "description": ""
+}
