@@ -19,7 +19,7 @@ a {
     text-decoration: none;
 }
 
-.start-session a {
+.start-session {
     color: #95CD5C;
     background-color: #DBF2C3;
     border-bottom: 5px solid;
@@ -28,9 +28,10 @@ a {
     height: 50px;
     width: 260px;
     display: inline-block;
+    margin-right: 60px;
 }
 
-.end-session a {
+.end-session {
     background-color: #FDD5CB;
     border-bottom: 5px solid;
     border-color: #D55C3E;
@@ -60,15 +61,16 @@ a {
     margin: 0px;
 }
 
-.start-session a:hover {
-    background-color: red;
+.session-controls {
+    display: flex;
+    text-align: center;
+    margin-top: 40px;
+    justify-content: center;
+
 }
 
-.session-controls {
-    display: block;
-    text-align: center;
-    vertical-align: middle;
-    margin-top: 40px;
+.start-session a:hover {
+    background-color: red;
 }
 
 body {
