@@ -1,5 +1,3 @@
-
-
 from flask import Flask, render_template, redirect, url_for, request, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -16,6 +14,11 @@ bcrypt = Bcrypt(app)
 @app.route('/')
 def home():
     return "Welcome to the Lookaway App! Go to /register or /login to get started."
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)  # Remove the user ID from the session
+    return redirect(url_for('login'))
 
 # Database Models
 class User(db.Model):
@@ -104,21 +107,51 @@ def end_session():
     
     return redirect(url_for('dashboard'))
 
-# Route to update look-away counts (integrated with your detection script)
+# Public route to update look-away counts without requiring login
 @app.route('/update_lookaway', methods=['POST'])
 def update_lookaway():
-    if 'user_id' not in session or 'current_session_id' not in session:
-        return redirect(url_for('login'))
+    print("Attempting to update lookaway count")
 
-    # Get the current session
-    session_id = session['current_session_id']
-    current_session = Progress.query.get(session_id)
+    # Fetch the latest session for any user for demonstration (consider securing this if needed)
+    current_session = Progress.query.order_by(Progress.id.desc()).first()
+    
     if current_session:
-        # Increment the look-away count
         current_session.look_away_count += 1
         db.session.commit()
+        print("Look-away count updated successfully")
+        return 'Look-away count updated', 200
+    else:
+        print("No active session found")
+        return 'No active session found', 404
 
-    return 'Look-away updated', 200
+# Leaderboard Route
+@app.route('/leaderboard')
+def leaderboard():
+    # Define the lookaway penalty factor
+    lookaway_penalty = 5
+
+    # Fetch all users and calculate each user's points based on session time and lookaways
+    users = User.query.all()
+    leaderboard_data = []
+    for user in users:
+        total_time = sum(progress.session_time for progress in user.progress)
+        total_lookaways = sum(progress.look_away_count for progress in user.progress)
+        
+        # Calculate points with a penalty for lookaways
+        points = total_time - (lookaway_penalty * total_lookaways)
+
+        leaderboard_data.append({
+            'username': user.username,
+            'total_time': total_time,
+            'total_lookaways': total_lookaways,
+            'points': points
+        })
+    
+    # Sort by points in descending order
+    leaderboard_data = sorted(leaderboard_data, key=lambda x: -x['points'])
+
+    return render_template('leaderboard.html', leaderboard=leaderboard_data)
+
 
 # Run the app
 if __name__ == '__main__':
