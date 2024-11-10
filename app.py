@@ -11,6 +11,18 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
+# Define a custom filter for formatting time in minutes and seconds
+def format_time(seconds):
+    minutes = int(seconds // 60)
+    remaining_seconds = int(seconds % 60)
+    if minutes > 0:
+        return f"{minutes} min {remaining_seconds} sec"
+    else:
+        return f"{remaining_seconds} sec"
+
+# Register the custom filter with Jinja
+app.jinja_env.filters['format_time'] = format_time
+
 @app.route('/')
 def home():
     return "Welcome to the Lookaway App! Go to /register or /login to get started."

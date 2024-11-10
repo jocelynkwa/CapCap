@@ -18,7 +18,7 @@
     <h2>Your Session Progress</h2>
     <ul>
         {% for session in progress %}
-        <li>Session Time: {{ session.session_time }} seconds, Look-Away Count: {{ session.look_away_count }}</li>
+        <li>Session Time: {{ session.session_time | round(2) }} seconds, Look-Away Count: {{ session.look_away_count }}</li>
         {% endfor %}
     </ul>
 

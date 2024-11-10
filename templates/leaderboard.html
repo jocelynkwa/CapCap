@@ -11,14 +11,14 @@
         <tr>
             <th>Rank</th>
             <th>Username</th>
-            <th>Total Session Time (seconds)</th>
+            <th>Total Session Time</th>
             <th>Total Lookaways</th>
         </tr>
         {% for user in leaderboard %}
         <tr>
             <td>{{ loop.index }}</td>
             <td>{{ user.username }}</td>
-            <td>{{ user.total_time }}</td>
+            <td>{{ user.total_time | format_time }}</td>  <!-- Apply the custom filter here -->
             <td>{{ user.total_lookaways }}</td>
         </tr>
         {% endfor %}
