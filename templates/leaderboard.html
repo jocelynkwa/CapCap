@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+</head>
+<body>
+    <h1>Leaderboard</h1>
+    <table border="1">
+        <tr>
+            <th>Rank</th>
+            <th>Username</th>
+            <th>Total Session Time (seconds)</th>
+            <th>Total Lookaways</th>
+        </tr>
+        {% for user in leaderboard %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.total_time }}</td>
+            <td>{{ user.total_lookaways }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
+</body>
+</html>
