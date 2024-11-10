@@ -4,25 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link href="navbar.css" rel="stylesheet"/>
+    <link href="dashboard.css" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&family=Varela+Round&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Welcome to Your Dashboard</h1>
-    
-    <!-- Links to start and end session -->
-    <p><a href="{{ url_for('start_session') }}">Start a new session</a> | <a href="{{ url_for('end_session') }}">End current session</a></p>
-    
-    <!-- Link to the leaderboard -->
-    <p><a href="{{ url_for('leaderboard') }}">View Leaderboard</a></p>
+    <!-- NAV BAR -->
+    <section class="sidenav">
+        <h1>CAP CAP</h1>
+        <img src="/capybara_main_image.png" alt="" class="main-capybara">
+        <div>
+            <a href="/templates/dashboard.html">
+                <span>
+                    <img src="/Icons/session.png" alt="" class="nav-icon">
+                    <p>Start Session</p>
+                </span>
+            </a>
+            <a href="/templates/dashboard.html" class="current-page">
+                <span>
+                    <img src="/Icons/clock_orange.png" alt="" class="nav-icon">
+                    <p>Dashboard</p>
+                </span>
+            </a>
+            <a href="/templates/leaderboard.html">
+                <span>
+                    <img src="/Icons/leaderboard.png" alt="" class="nav-icon">
+                    <p>Leaderboard</p>
+                </span>
+            </a>
+            <a href="/templates/settings.html">
+                <span>
+                    <img src="/Icons/gear.png" alt="" class="nav-icon">
+                    <p>Settings</p>
+                </span>
+            </a>
+        </div>
+    </section>
 
-    <!-- Display user session progress -->
-    <h2>Your Session Progress</h2>
-    <ul>
-        {% for session in progress %}
-        <li>Session Time: {{ session.session_time | round(2) }} seconds, Look-Away Count: {{ session.look_away_count }}</li>
-        {% endfor %}
-    </ul>
+    <!-- MAIN PAGE CONTENT -->
+    <div class="main">
+        <div class="title-box">
+            <h2>session history</h2>
+        </div>
+    
+        <!-- Links to start and end session -->
+         <span class="session-controls">
+            <div class="start-session">
+                <a href="{{ url_for('start_session') }}">
+                    <h3>START</h3>
+                </a>
+            </div>
+            <div class="end-session">
+                <a href="{{ url_for('end_session') }}">
+                    <h3>END</h3>
+                </a>
+            </div>
+         </span>
+                 
+        <!-- Display user session progress -->
+        <ul>
+            {% for session in progress %}
+            <li>Session Time: {{ session.session_time | round(2) }} seconds, Look-Away Count: {{ session.look_away_count }}</li>
+            {% endfor %}
+        </ul>
 
-    <!-- Logout link -->
-    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+        <!-- Logout link -->
+        <p><a href="{{ url_for('logout') }}">Logout</a></p>
+    </div>
 </body>
 </html>
